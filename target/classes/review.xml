@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reviewns">
+	<select id="getTotalReview" parameterType="integer"
+		resultType="integer">
+		select count(*) from review r, pay p where reviewDel = 'n'
+		and p.payNo = r.payNo and p.memberNo = #{memberNo}
+	</select>
+	<select id="reviewList" parameterType="integer"
+		resultType="review">
+		select * from (select rowNum rn, e.* from (
+		select r.* from
+		review r, pay p
+		where r.payNo = p.payNo and r.reviewDel ='n' and
+		p.memberNo = #{memberNo} order by r.reviewNo desc) e)
+		where rn between
+		1 and 4
+	</select>
+	<select id="reviewPageList" parameterType="map"
+		resultType="review">
+		select * from (select rowNum rn, e.* from (
+		select r.* from
+		review r, pay p
+		where r.payNo = p.payNo and r.reviewDel ='n' and p.memberNo = #{memberNo}
+		order by r.reviewNo desc) e)
+		where rn between #{startRow} and #{endRow}
+	</select>
+	<select id="reviewChk" parameterType="map" resultType="integer">
+		select
+		nvl(count(*), 0) from review r, pay p where r.payNo=#{payNo} and
+		r.payNo = p.payNo and p.memberNo=#{memberNo} and reviewDel = 'n'
+	</select>
+	<insert id="reviewWrite" parameterType="map">
+		insert into review values
+		(To_Number(#{s_reviewNo}), To_Number(#{payNo}),
+		To_Number(#{s_houseNo}), #{reviewSubject}, #{reviewContent},
+		To_Number(#{reviewScore}), sysdate, 'n')
+	</insert>
+	<select id="createReviewNo" resultType="integer">
+		select count(*) + 1 from
+		review
+	</select>
+	<select id="selectReview" parameterType="integer"
+		resultType="review">
+		select * from review r where reviewNo = #{reviewNo}
+	</select>
+	<select id="selectHouseNo3" parameterType="integer"
+		resultType="integer">
+		select p.houseNo from pay p, review r where r.payNo =
+		p.payNo and r.reviewNo = #{reviewNo}
+	</select>
+	<update id="reviewUpdate" parameterType="map">
+		update review set
+		reviewSubject = #{reviewSubject}, reviewContent = #{reviewContent},
+		reviewScore = To_Number(#{reviewScore}) where reviewNo =
+		To_Number(#{s_reviewNo}) and payNo = To_Number(#{payNo}) and houseNo =
+		To_Number(#{s_houseNo}) and reviewDel = 'n'
+	</update>
+	<select id="selectReviewNo" parameterType="string"
+		resultType="integer">
+		select reviewNo from review where payNo =
+		To_Number(#{payNo}) and reviewDel = 'n'
+	</select>
+	<update id="reviewDelete" parameterType="map">
+		update review set
+		reviewDel = 'y' where reviewNo = #{reviewNo}
+	</update>
+	<select id="reviewAv" parameterType="integer"
+		resultType="review">
+		select nvl(round(avg(nvl(reviewscore,0)),1),0) as reviewAv
+		from review where houseno=#{houseNo}
+	</select>
+	<select id="reviewCo" parameterType="integer"
+		resultType="integer">
+		select count(*) from review where houseno=#{houseNo} and
+		reviewdel='n'
+	</select>
+	<select id="reviewSel" parameterType="integer"
+		resultType="review">
+		select * from (select a.*, rowNum rn from (
+		select * from review where houseno=#{houseNo} order by reviewdate desc )a)
+		where rn between 1 and 6
+	</select>
+	<insert id="insertReview" parameterType="review">
+		insert into review values (#{reviewNo},#{payNo},#{houseNo},#{reviewSubject}
+		,#{reviewContent},#{reviewScore},sysdate,'n')
+	</insert>
+	<select id="reviewListAll" parameterType="review" resultType="review">
+		   select * from (select a.*, rowNum rn from (select * from review where houseno = #{houseNo} order by reviewdate desc) a)
+		    where reviewdel = 'n' and rn between #{startRow} and #{endRow}
+   </select>
+</mapper>

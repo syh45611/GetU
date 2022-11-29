@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="housens">
+	<!-- table의 컬렄명과 class 속성명이 다를경우 -->
+	<resultMap type="house" id="houseResult">
+		        <!-- 클래스의 속성명     테이블의 컬럼명 -->
+		<result property="houseNo" column="houseNo"/>
+		<result property="houseName" column="houseName"/>
+		<result property="houseLoc" column="houseLoc"/>
+		<result property="houseTel" column="houseTel"/>
+		<result property="hiredate" column="hiredate"/>
+		<result property="houseAddr" column="houseAddr"/>
+		<result property="houseDel" column="houseDel"/>
+	</resultMap>
+	<select id="getTotal" parameterType="house" resultType="integer">
+		select count(*) from house
+	</select>
+	<select id="houseList" parameterType="house" resultType="house">
+		select * from house
+	</select>
+	<select id="maxHouseNo" resultType="integer">
+		select nvl(max(houseNo), 0) from house
+	</select>
+	<select id="getAllHouseList" resultType="house">
+		select * from (select rowNum rn, e.* from 
+		(select h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel, round(avg(nvl(reviewScore, 0)), 1) as avgScore
+		from house h, review r
+		where r.houseNo(+) = h.houseNo and h.houseDel='n'
+		group by h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel order by avgScore desc, h.houseNo desc) e)
+	</select>
+	<select id="getHousePageList" parameterType="map" resultType="house">
+		select * from (select rowNum rn, e.* from 
+		(select h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel, round(avg(nvl(reviewScore, 0)), 1) as avgScore
+		from house h, review r
+		where r.houseNo(+) = h.houseNo and h.houseDel='n'
+		group by h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel order by avgScore desc, h.houseNo desc) e)
+		where rn between #{startRow} and #{endRow}
+	</select>
+	<select id="resultHouseList" parameterType="map" resultType="house">
+		select * from (select rowNum rn, e.* from 
+		(select h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel, round(avg(nvl(reviewScore, 0)), 1) as avgScore
+		from house h, review r 
+		where r.houseNo(+) = h.houseNo and h.houseDel='n' and
+		<choose>
+			<when test="searchKey.equals('houseLoc')"> houseLoc like '%'||#{searchValue}||'%'</when> 
+			<when test="searchKey.equals('houseName')"> houseName like '%'||#{searchValue}||'%'</when>
+			<when test="searchKey.equals('houseAddr')"> houseAddr like '%'||#{searchValue}||'%'</when>
+			<otherwise> houseTel like '%'||#{searchValue}||'%'
+			</otherwise>
+		</choose>
+		group by h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel order by avgScore desc, h.houseNo desc) e)
+	</select>
+	<select id="resultHousePageList" parameterType="map" resultType="house">
+		select * from (select rowNum rn, e.* from 
+		(select h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel, round(avg(nvl(reviewScore, 0)), 1) as avgScore
+		from house h, review r 
+		where r.houseNo(+) = h.houseNo and h.houseDel='n' and
+		<choose>
+			<when test="searchKey.equals('houseLoc')"> houseLoc like '%'||#{searchValue}||'%'</when> 
+			<when test="searchKey.equals('houseName')"> houseName like '%'||#{searchValue}||'%'</when>
+			<when test="searchKey.equals('houseAddr')"> houseAddr like '%'||#{searchValue}||'%'</when>
+			<otherwise> houseTel like '%'||#{searchValue}||'%'
+			</otherwise>
+		</choose>
+		group by h.houseNo, h.houseName, h.houseLoc, h.houseAddr, h.houseTel, h.houseDel order by avgScore desc, h.houseNo desc) e)
+		where rn between To_Number(#{startRow}) and To_Number(#{endRow})
+	</select>
+	<select id="selectHouseName" parameterType="integer" resultType="string">
+		select houseName from house where houseNo = #{houseNo}
+	</select>	
+	<select id="select" parameterType="integer" resultType="house">
+		select * from house where houseNo=#{houseNo}
+	</select>
+	<select id="chkHouse" parameterType="integer" resultType="integer">
+		select count(*) from house where houseNo=#{memberNo}
+	</select>
+</mapper>

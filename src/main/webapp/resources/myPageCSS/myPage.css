@@ -1,0 +1,18 @@
+@charset "UTF-8";
+
+.txt_title 
+{
+	margin-top: 0;
+}
+
+.txt 
+{
+	font-size: 15px;
+	display: block;
+	line-height: 22px;
+}
+
+.txt>span 
+{
+	font-weight: 600;
+}

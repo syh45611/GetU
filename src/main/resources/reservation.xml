@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reservationns">
+	<!-- table의 컬렄명과 class 속성명이 다를경우 -->
+	<resultMap type="reservation" id="reservationResult">
+		        <!-- 클래스의 속성명     테이블의 컬럼명 -->
+		<result property="resNo" column="resNo"/>
+		<result property="roomNo" column="roomNo"/>
+		<result property="houseNo" column="houseNo"/>
+		<result property="memberNo" column="memberNo"/>
+		<result property="payNo" column="payNo"/>
+		<result property="chkIn" column="chkIn"/>
+		<result property="chkOut" column="chkOut"/>
+		<result property="roomCount" column="roomCount"/>	
+		<collection property="pay" resultMap="payResult"></collection>
+	</resultMap>
+		<resultMap type="pay" id="payResult">
+		        <!-- 클래스의 속성명     테이블의 컬럼명 -->
+		<result property="payNo" column="payNo"/>
+		<result property="memberNo" column="memberNo"/>
+		<result property="payDate" column="payDate"/>
+		<result property="payType" column="payType"/>
+		<result property="payDel" column="payDel"/>
+		<result property="merchant_uid" column="merchant_uid"/>
+		<result property="imp_uid" column="imp_uid"/>
+		<result property="method" column="method"/>
+	</resultMap>
+	<select id="getTotalReservation" parameterType="integer" resultType="integer">
+		select distinct count(r.payNo) from reservation r, pay p where p.payNo = r.payNo and p.payState = 1 and r.memberNo = #{memberNo}
+	</select>
+	<select id="RCmemberName" parameterType="integer" resultType="string">
+		select m.memberName from member m, reservation r where m.memberNo = r.memberNo and r.resNo = #{resNo}
+	</select>
+	<select id="RChouseName" parameterType="integer" resultType="string">
+		select h.houseName from house h, reservation r where h.houseNo = r.houseNo and r.resNo = #{resNo}
+	</select>
+	<select id="RChouseAddr" parameterType="integer" resultType="string">
+		select h.houseAddr from house h, reservation r where h.houseNo = r.houseNo and r.resNo = #{resNo}
+	</select>
+	<select id="selectReservation" parameterType="integer" resultType="reservation">
+		select * from reservation r where resNo = #{resNo}
+	</select>
+		<select id="getResNo" resultType="integer">
+	 	select NVL(max(resNo),0)+1 from reservation
+	</select>
+	<insert id="revInsert" parameterType="reservation">
+		insert into reservation (resno,roomno,houseno,memberno,payno,chkin,chkout,roomcount)
+		values (#{resNo}, #{roomNo}, #{houseNo}, #{memberNo}, #{payNo}, #{chkIn}, #{chkOut}, #{roomCount})
+	</insert>
+	<select id="roomNoCount" parameterType="integer" resultType="reservation">
+		select roomno, roomcount from reservation where payno = #{payNo}
+	</select>
+	<delete id="resevCancel" parameterType="integer" >
+		delete from reservation where payNo=#{payNo}
+	</delete>
+	<select id="reservationTemp" parameterType="integer" resultType="reservation">
+		select * from (select rowNum rn, e.* from (
+		select r.* from reservation r, pay p
+		where p.payNo = r.payNo and p.payState = 1 and r.memberNo = #{memberNo}
+		and r.payNo in (select distinct(payNo) from pay where memberNo = #{memberNo})
+		order by r.resNo desc) e)
+	</select>
+	<select id="findPayNo" parameterType="integer" resultType="integer">
+		select payNo from reservation where resNo = #{resNo}
+	</select>
+	<select id="samePayNoList" parameterType="integer" resultType="reservation">
+		select * from reservation where payNo = #{payNo}
+	</select>
+	<select id="getRoomName" parameterType="integer" resultType="string">
+		select r.roomName from room r, reservation rv where rv.roomNo = r.roomNo and rv.resNo = #{resNo}
+	</select>
+</mapper>

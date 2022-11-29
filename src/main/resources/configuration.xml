@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias alias="member" type="com.ch.GetU.model.Member" />
+		<typeAlias alias="notice" type="com.ch.GetU.model.Notice" />
+		<typeAlias alias="qna" type="com.ch.GetU.model.QnA" />
+		<typeAlias alias="house" type="com.ch.GetU.model.House"/>
+		<typeAlias alias="pay" type="com.ch.GetU.model.Pay"/>
+		<typeAlias alias="reservation" type="com.ch.GetU.model.Reservation"/>
+		<typeAlias alias="review" type="com.ch.GetU.model.Review"/>
+		<typeAlias alias="room" type="com.ch.GetU.model.Room"/>		
+		<typeAlias alias="info" type="com.ch.GetU.model.Info"/>
+		<typeAlias alias="parking" type="com.ch.GetU.model.Parking"/>
+		<typeAlias alias="subway" type="com.ch.GetU.model.Subway"/>
+	</typeAliases>
+	<mappers>
+		<mapper resource="info.xml" />
+		<mapper resource="parking.xml" />
+		<mapper resource="subway.xml" />
+		<mapper resource="member.xml" />		
+		<mapper resource="notice.xml" />	
+		<mapper resource="qna.xml" />	
+		<mapper resource="house.xml"/>
+		<mapper resource="pay.xml"/>
+		<mapper resource="reservation.xml"/>
+		<mapper resource="review.xml"/>
+		<mapper resource="room.xml"/>	
+		<mapper resource="pay.xml"/>	
+	</mappers>
+</configuration>

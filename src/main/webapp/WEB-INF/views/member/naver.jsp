@@ -1,0 +1,171 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ include file="../header2.jsp"%>  
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" href="resources/memberadmin/memberadmin.css">
+<style type="text/css">
+ body {
+    padding-top: 0px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+input {
+	width: 100%;
+	height: 48px;
+	border: none;
+	border-bottom: 1px solid #000;
+	outline: 0;
+	font-size: 15px;
+	margin-bottom: 16px;
+	font-family: inherit;
+}
+</style>
+</head>
+<body>
+
+<!-- 네이버 스크립트 -->
+<script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
+<script>
+var naverLogin = new naver.LoginWithNaverId(
+      {
+         clientId: "KSlPyJ36zqn6mkst5lYV", //내 애플리케이션 정보에 cliendId를 입력해줍니다.
+ 		callbackUrl: "http://localhost:8080/gueChu/naverChk.do", // 내 애플리케이션 API설정의 Callback URL 을 입력해줍니다.	
+         
+         isPopup: false,
+         callbackHandle: true
+      }
+   );   
+
+naverLogin.init();
+
+window.addEventListener('load', function () {
+   naverLogin.getLoginStatus(function (status) {
+      if (status) {
+         var email = naverLogin.user.getEmail(); // 필수로 설정할것을 받아와 아래처럼 조건문을 줍니다.
+          
+         console.log(naverLogin.user); 
+          
+            if( email == undefined || email == null) {
+            alert("이메일은 필수정보입니다. 정보제공을 동의해주세요.");
+            naverLogin.reprompt();
+            return;
+         }
+      } else {
+         console.log("callback 처리에 실패하였습니다.");
+      }
+   });
+});
+
+
+var testPopUp;
+function openPopUp() {
+    testPopUp= window.open("https://nid.naver.com/nidlogin.logout", "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,width=1,height=1");
+}
+function closePopUp(){
+    testPopUp.close();
+}
+
+function naverLogout() {
+   openPopUp();
+   setTimeout(function() {
+      closePopUp();
+      }, 1000);
+   
+   
+}
+</script>
+<button  id="naverIdLogin_loginButton"></button>
+<!-- 카카오 스크립트 -->
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+Kakao.init('861c7ac8d8edd9756fd2467688343065'); //발급받은 키 중 javascript키를 사용해준다.
+console.log(Kakao.isInitialized()); // sdk초기화여부판단
+//카카오로그인
+function kakaoLogin() {
+    Kakao.Auth.login({
+      success: function (response) {
+        Kakao.API.request({
+          url: '/v2/user/me',
+          success: function (response) {
+     
+            console.log(response);
+           const kaka = JSON.stringify(response.kakao_account); 
+           const kaka2 = JSON.stringify(response.properties); 
+           console.log(kaka);
+           
+           const ka2 = JSON.parse(kaka2);
+           const ka = JSON.parse(kaka);
+           
+           const ka3 = JSON.stringify(ka2.nickname);
+           const ka4 = JSON.stringify(ka.email);
+           location.href="kakaoLoginResult.do?account_email="+ka4+"&memberId="+ka3;
+           
+          },
+          fail: function (error) {
+            console.log(error)
+          },
+        })
+      },
+      fail: function (error) {
+        console.log(error)
+      },
+    })
+  }
+//카카오로그아웃  
+function kakaoLogout() {
+    if (Kakao.Auth.getAccessToken()) {
+      Kakao.API.request({
+        url: '/v1/user/unlink',
+        success: function (response) {
+           console.log(response)
+        
+           
+        },
+        fail: function (error) {
+          console.log(error)
+        },
+      })
+      Kakao.Auth.setAccessToken(undefined)
+    }
+  }  
+</script>
+	<div class="container">
+		<form action="loginResult.do" method="post">		
+			<img alt="header이미지" src="resources/images/mainLogo10.jpg" style="width: 300px; margin-left: 150px; margin-bottom: 50px;">
+			<input type="text" name="memberId" required="required"	autofocus="autofocus" placeholder="아이디"> 
+			<input type="password" name="memberPass" required="required" placeholder="비밀번호">
+			<input type="submit" class="btn" value="로그인">
+		</form>
+      	<!-- <a href="#" onclick="kakaoLogin()">
+          	<img alt="" src="resources/images/kakaologin.png" style="width: 567px; margin-bottom: 30px; height: 64px;"></a>	 -->
+   <!--       <a href="#" onclick="naverLogin()" >
+		          <img alt="" src="resources/images/naverlogin.png" style="width: 567px; margin-bottom: 30px; height: 64px;"></a>	 -->
+		 
+
+<ul>
+   <li onclick="kakaoLogin();">
+      <a href="javascript:void(0)">
+          <span>카카오 로그인</span>
+      </a>
+   </li>
+ 
+</ul>        
+		<ul>
+		   <li>
+		      <!-- 아래와같이 아이디를 꼭 써준다. -->
+		      <a id="naverIdLogin_loginButton" href="javascript:void(0)">
+		          <span>네이버 로그인</span>
+		      </a>
+		   </li>
+		</ul>         
+		
+		<a href ="joinForm.do">회원가입</a>
+		<a style="margin-left: 340px" href="findForm.do">아이디/비밀번호 찾기</a>
+	</div>
+</body>
+</html>

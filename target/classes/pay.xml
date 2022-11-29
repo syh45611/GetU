@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="payns">
+		<!-- table의 컬렄명과 class 속성명이 다를경우 -->
+	<resultMap type="pay" id="payResult">
+		        <!-- 클래스의 속성명     테이블의 컬럼명 -->
+		<result property="payNo" column="payNo"/>
+		<result property="memberNo" column="memberNo"/>
+		<result property="payDate" column="payDate"/>
+		<result property="payType" column="payType"/>
+		<result property="payDel" column="payDel"/>
+		<result property="merchant_uid" column="merchant_uid"/>
+		<result property="imp_uid" column="imp_uid"/>
+		<result property="method" column="method"/>
+	</resultMap>	
+	<select id="selectHouseName2" parameterType="integer" resultType="string">
+		select h.houseName from house h, pay p where h.houseNo = p.houseNo and p.payNo = #{payNo} and h.houseNo = (select p.houseNo from pay p where payNo = #{payNo})
+	</select>
+	<select id="payNoList" parameterType="integer" resultType="integer">
+		select distinct payNo from pay p, member m where p.memberNo = m.memberNo and p.memberNo = #{memberNo}
+	</select>
+	<select id="selectHouseNo2" parameterType="integer" resultType="integer">
+		select p.houseNo from pay p where p.payNo = #{payNo}
+	</select>
+	<select id="payNoChk" resultType="integer">
+		select NVL(max(payNo),0)+1 from pay
+	</select>
+	<insert id="payNoInsert" parameterType="integer">
+		insert into pay (payNo,paydate) values (#{payNo},sysdate)
+	</insert>
+	<update id="insertPay" parameterType="pay">
+		update pay set memberno=#{memberNo},paytype=#{payType},	merchant_uid=#{merchant_uid},
+			imp_uid=#{imp_uid}, method=#{method}, paysum=#{paySum}, houseno=#{houseNo} where payno=#{payNo}
+	</update>
+	<update id="updatePayState" parameterType="integer">
+		update pay set paystate=1 where payno=#{payNo}
+	</update>
+	<update id="payCancel" parameterType="integer">
+		update pay set paydel = 'y' where payno=#{payNo}
+	</update>
+	<select id="getHouseNameTemp" parameterType="integer" resultType="string">
+		select h.houseName from house h, pay p where h.houseNo = p.houseNo and p.payNo = #{payNo}
+	</select>
+	<select id="getPayDateTemp" parameterType="integer" resultType="string">
+    	select TO_CHAR(p.payDate, 'YYYY-MM-DD') from pay p where p.payNo = #{payNo}
+    </select>
+    <insert id="insertPayNo" parameterType="integer">
+      insert into pay (payNo,paydate) values (#{payNo},sysdate)
+   </insert>
+</mapper>

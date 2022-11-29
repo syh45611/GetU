@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parkingns">
+	<select id="selectPark" parameterType="integer" resultType="parking">
+	select * from parking where houseno=#{houseNo}
+	</select>
+	<insert id="insertFo" parameterType="parking">
+	insert into parking values (#{pno},#{houseno},#{parkcontent})
+	</insert>
+	<select id="maxNo" resultType="integer">
+	select count(*)+1 from parking
+	</select>
+	
+	</mapper>

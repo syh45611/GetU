@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="roomns">
+	<resultMap type="room" id="roomResult">
+		<!-- 클래스의 속성명 테이블의 컬럼명 -->
+		<result property="roomNo" column="roomNo" />
+		<result property="houseNo" column="houseNo" />
+		<result property="roomDate" column="roomDate" />
+		<result property="roomName" column="roomName" />
+		<result property="roomType" column="roomType" />
+		<result property="roomPrice" column="roomPrice" />
+		<result property="roomCapa" column="roomCapa" />
+		<result property="roomRemain" column="roomRemain" />
+		<result property="roomDel" column="roomDel" />
+
+
+
+		<collection property="house" resultMap="houseResult"></collection>
+		<collection property="reservation" resultMap="reservationResult"></collection>
+	</resultMap>
+	<!-- table의 컬렄명과 class 속성명이 다를경우 -->
+	<resultMap type="house" id="houseResult">
+		<!-- 클래스의 속성명 테이블의 컬럼명 -->
+		<result property="houseNo" column="houseNo" />
+		<result property="houseName" column="houseName" />
+		<result property="houseLoc" column="houseLoc" />
+		<result property="houseTel" column="houseTel" />
+		<result property="houseAddr" column="houseAddr" />
+		<result property="houseDel" column="houseDel" />
+	</resultMap>
+	
+	<resultMap type="reservation" id="reservationResult">
+		        <!-- 클래스의 속성명     테이블의 컬럼명 -->
+		<result property="resNo" column="resNo"/>
+		<result property="roomNo" column="roomNo"/>
+		<result property="houseNo" column="houseNo"/>
+		<result property="memberNo" column="memberNo"/>
+		<result property="payNo" column="payNo"/>
+		<result property="chkIn" column="chkIn"/>
+		<result property="chkOut" column="chkOut"/>
+		<result property="headCount" column="headCount"/>
+		<result property="roomCount" column="roomCount"/>
+	</resultMap>
+	
+	<select id="selectCanRoom" parameterType="room"
+		resultType="room">
+		select roomtype,roomname,sum(roomprice) as roomprice,roomcapa,min(roomremain) as roomremain
+		from room where
+		houseno=#{houseNo} and roomdate between #{chkIn} and #{chkOut}
+		group by roomtype,roomname,roomcapa order by roomtype
+		
+<!-- 		select roomtype,roomname,roomprice,roomcapa,roomdate
+		from(select roomcapa,roomname,roomtype,TO_DATE(roomdate, 'yy-mm-dd') as roomdate,
+		min(roomremain) as roomremain ,sum(roomprice) as roomprice 
+        from room where houseno =1 
+        group by roomname,roomtype,roomdate,roomcapa)a
+        where
+        roomdate between '22-10-30' and '22-10-30'
+		order by roomtype; 
+		sysdate 로 입력시 대처-->
+	</select>
+	<select id="oneDayRoomList" parameterType="room"
+		resultType="room">
+		select roomtype,roomname,roomprice,roomcapa, roomremain from room where
+		houseno=#{houseNo} and to_char(roomdate,'yyyy-mm-dd')= #{chkIn}
+		order by roomtype
+	</select>
+	<select id="count" parameterType="room" resultType="integer">
+		select
+		count(*) from room where roomtype = #{roomType} and
+		roomdate between #{chkIn} and #{chkOut} and houseno=#{houseNo}
+	</select>
+	<select id="selectRevRoom" parameterType="room"
+		resultType="room">
+		select roomname,roomtype,roomcapa,sum(roomprice) as roomprice 
+        from (select roomprice,roomcapa,roomname,roomtype,roomdate
+		from (select houseno,roomprice,roomcapa,roomname,roomtype,TO_DATE(roomdate, 'yy-mm-dd') 
+		as roomdate from room) where houseno = #{houseNo} and 
+		roomtype =#{roomType} and roomdate between #{chkIn} and #{chkOut} )a
+		group by roomname,roomtype,roomcapa
+	</select> 
+	<select id="getRoomNo" parameterType="room" resultMap="roomResult">
+		select roomno
+        from (select roomno,roomtype
+		from (select roomtype,roomno,houseno,TO_DATE(roomdate, 'yy-mm-dd') 
+		as roomdate from room) where houseno = #{houseNo} and 
+		roomtype =#{roomType} and roomdate between #{chkIn} and #{chkOut} )a
+	</select>
+	<select id="chkRoomRemain" parameterType="integer" resultType="integer">
+		select roomremain from room where roomno = #{roomNo}
+	</select>
+	<update id="updateRoomRemain" parameterType="room">
+		update room set roomremain = #{roomRemain} where roomno=#{roomNo}
+	</update>
+	<insert id="roomSeting" parameterType="room">
+		insert into room (roomno,houseno,roomtype,roomprice,
+		roomcapa,roomname,roomremain,roomdate) values (#{roomNo},#{houseNo},#{roomType},
+		#{roomPrice},#{roomCapa},#{roomName},#{roomRemain},#{roomDate})
+	</insert>
+	<select id="selectRoomList" parameterType="room" resultType="room">
+		select * from room where houseno=#{houseNo} and roomdate=#{roomDate}
+	</select>
+	<update id="updateRoom" parameterType="room">
+		update room set roomremain=#{roomRemain} where roomno=#{roomNo}
+	
+	</update>
+</mapper>
