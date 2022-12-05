@@ -141,12 +141,6 @@ function kakaoLogout() {
 			<input type="password" name="memberPass" required="required" placeholder="비밀번호">
 			<input type="submit" class="btn" value="로그인">
 		</form>
-      	<!-- <a href="#" onclick="kakaoLogin()">
-          	<img alt="" src="resources/images/kakaologin.png" style="width: 567px; margin-bottom: 30px; height: 64px;"></a>	 -->
-   <!--       <a href="#" onclick="naverLogin()" >
-		          <img alt="" src="resources/images/naverlogin.png" style="width: 567px; margin-bottom: 30px; height: 64px;"></a>	 -->
-		 
-
 <ul>
    <li onclick="kakaoLogin();">
       <a href="javascript:void(0)">

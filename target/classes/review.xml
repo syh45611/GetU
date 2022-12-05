@@ -59,8 +59,7 @@
 	</update>
 	<select id="selectReviewNo" parameterType="string"
 		resultType="integer">
-		select reviewNo from review where payNo =
-		To_Number(#{payNo}) and reviewDel = 'n'
+		select reviewNo from review where payNo = To_Number(#{payNo}) and reviewDel = 'n'
 	</select>
 	<update id="reviewDelete" parameterType="map">
 		update review set
@@ -68,13 +67,11 @@
 	</update>
 	<select id="reviewAv" parameterType="integer"
 		resultType="review">
-		select nvl(round(avg(nvl(reviewscore,0)),1),0) as reviewAv
-		from review where houseno=#{houseNo}
+		select nvl(round(avg(nvl(reviewscore,0)),1),0) as reviewAv from review where houseno=#{houseNo}
 	</select>
 	<select id="reviewCo" parameterType="integer"
 		resultType="integer">
-		select count(*) from review where houseno=#{houseNo} and
-		reviewdel='n'
+		select count(*) from review where houseno=#{houseNo} and reviewdel='n'
 	</select>
 	<select id="reviewSel" parameterType="integer"
 		resultType="review">
